@@ -5,11 +5,14 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{106853D1-72A0-44C5-A53A-E9EEC603FCE5}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R.Systems.Queue.Core", "R.Systems.Queue.Core\R.Systems.Queue.Core.csproj", "{76EB654C-F02B-43D9-B3AD-B68381981732}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "R.Systems.Queue.Infrastructure.ServiceBus", "R.Systems.Queue.Infrastructure.ServiceBus\R.Systems.Queue.Infrastructure.ServiceBus.csproj", "{9E84C040-EF26-451D-B23B-D8A31610BD22}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +24,10 @@ Global
 		{76EB654C-F02B-43D9-B3AD-B68381981732}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76EB654C-F02B-43D9-B3AD-B68381981732}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{76EB654C-F02B-43D9-B3AD-B68381981732}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E84C040-EF26-451D-B23B-D8A31610BD22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E84C040-EF26-451D-B23B-D8A31610BD22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E84C040-EF26-451D-B23B-D8A31610BD22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E84C040-EF26-451D-B23B-D8A31610BD22}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
