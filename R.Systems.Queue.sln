@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{106853D1-72A0-44C5-A53A-E9EEC603FCE5}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "R.Systems.Queue.Core", "R.Systems.Queue.Core\R.Systems.Queue.Core.csproj", "{76EB654C-F02B-43D9-B3AD-B68381981732}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{76EB654C-F02B-43D9-B3AD-B68381981732}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76EB654C-F02B-43D9-B3AD-B68381981732}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76EB654C-F02B-43D9-B3AD-B68381981732}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76EB654C-F02B-43D9-B3AD-B68381981732}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F97D4E76-A3BA-4877-8995-562035594F56}
+	EndGlobalSection
+EndGlobal
