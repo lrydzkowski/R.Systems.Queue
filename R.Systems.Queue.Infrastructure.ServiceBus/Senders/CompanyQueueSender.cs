@@ -6,15 +6,16 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Senders;
 
 internal class CompanyQueueSender : ICompanyQueueSender
 {
-    private readonly IServiceBusSender<Company> _queueSender;
+    private readonly IServiceBusSender<CompanyQueueMessage> _queueSender;
 
-    public CompanyQueueSender(IServiceBusSender<Company> queueSender)
+    public CompanyQueueSender(IServiceBusSender<CompanyQueueMessage> queueSender)
     {
         _queueSender = queueSender;
     }
 
     public async Task SendAsync(Company company)
     {
-        await _queueSender.EnqueueAsync(company);
+        CompanyQueueMessage companyMessage = new(company.Id, company.Name);
+        await _queueSender.EnqueueAsync(companyMessage);
     }
 }

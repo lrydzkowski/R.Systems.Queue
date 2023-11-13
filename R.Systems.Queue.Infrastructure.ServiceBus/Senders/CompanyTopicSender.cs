@@ -6,10 +6,10 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Senders;
 
 internal class CompanyTopicSender : ICompanyTopicSender
 {
-    private readonly IServiceBusSender<Company> _topicSender;
+    private readonly IServiceBusSender<CompanyTopicMessage> _topicSender;
 
     public CompanyTopicSender(
-        IServiceBusSender<Company> topicSender
+        IServiceBusSender<CompanyTopicMessage> topicSender
     )
     {
         _topicSender = topicSender;
@@ -17,6 +17,7 @@ internal class CompanyTopicSender : ICompanyTopicSender
 
     public async Task SendAsync(Company company)
     {
-        await _topicSender.EnqueueAsync(company);
+        CompanyTopicMessage companyMessage = new(company.Id, company.Name);
+        await _topicSender.EnqueueAsync(companyMessage);
     }
 }

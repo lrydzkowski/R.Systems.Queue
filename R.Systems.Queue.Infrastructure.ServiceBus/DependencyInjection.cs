@@ -35,9 +35,11 @@ public static class DependencyInjection
     private static void ConfigureSenders(this IServiceCollection services)
     {
         services
-            .ConfigureServiceBusQueueSender<ICompanyQueueSender, CompanyQueueSender, Company, CompanyQueueOptions>();
+            .ConfigureServiceBusQueueSender<ICompanyQueueSender, CompanyQueueSender, CompanyQueueMessage,
+                CompanyQueueOptions>();
         services
-            .ConfigureServiceBusTopicSender<ICompanyTopicSender, CompanyTopicSender, Company, CompanyTopicOptions>();
+            .ConfigureServiceBusTopicSender<ICompanyTopicSender, CompanyTopicSender, CompanyTopicMessage,
+                CompanyTopicOptions>();
     }
 
     //private static void ConfigureReceivers(this IServiceCollection services)
