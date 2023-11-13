@@ -1,4 +1,9 @@
-﻿namespace R.Systems.Queue.WebApi;
+﻿using Azure.Messaging.ServiceBus;
+using R.Systems.Queue.Infrastructure.ServiceBus.Common;
+using R.Systems.Queue.Infrastructure.ServiceBus.Options;
+using R.Systems.Queue.WebApi.Listeners;
+
+namespace R.Systems.Queue.WebApi;
 
 public static class DependencyInjection
 {
@@ -7,7 +12,7 @@ public static class DependencyInjection
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.ConfigureSwagger();
-        //services.ConfigureServiceBusListeners();
+        services.ConfigureServiceBusListeners();
     }
 
     private static void ConfigureSwagger(this IServiceCollection services)
@@ -15,14 +20,21 @@ public static class DependencyInjection
         services.AddSwaggerGen();
     }
 
-    //private static void ConfigureServiceBusListeners(this IServiceCollection services)
-    //{
-    //    services.ConfigureServiceBusQueueListener<SitesBatchListener, GroupedSitesQueueOptions>(
-    //        new ServiceBusProcessorOptions
-    //        {
-    //            MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
-    //            MaxConcurrentCalls = 1
-    //        }
-    //    );
-    //}
+    private static void ConfigureServiceBusListeners(this IServiceCollection services)
+    {
+        services.ConfigureServiceBusQueueListener<CompanyQueueListener, CompanyQueueOptions>(
+            new ServiceBusProcessorOptions
+            {
+                MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
+                MaxConcurrentCalls = 1
+            }
+        );
+        services.ConfigureServiceBusTopicListener<CompanyTopicListener, CompanyTopicOptions>(
+            new ServiceBusProcessorOptions
+            {
+                MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
+                MaxConcurrentCalls = 1
+            }
+        );
+    }
 }
