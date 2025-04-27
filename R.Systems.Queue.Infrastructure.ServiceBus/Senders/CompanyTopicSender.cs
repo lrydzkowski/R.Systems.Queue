@@ -15,9 +15,9 @@ internal class CompanyTopicSender : ICompanyTopicSender
         _topicSender = topicSender;
     }
 
-    public async Task SendAsync(Company company)
+    public async Task SendAsync(Company company, CancellationToken cancellationToken = default)
     {
         CompanyTopicMessage companyMessage = new(company.Id, company.Name);
-        await _topicSender.EnqueueAsync(companyMessage);
+        await _topicSender.EnqueueAsync(companyMessage, cancellationToken: cancellationToken);
     }
 }

@@ -16,6 +16,6 @@ public class SendCompanyToQueueCommandHandler : IRequestHandler<SendCompanyToQue
 
     public async Task Handle(SendCompanyToQueueCommand command, CancellationToken cancellationToken)
     {
-        await _sender.SendAsync(command.Company);
+        await _sender.SendAsync(command.Company, cancellationToken);
     }
 }

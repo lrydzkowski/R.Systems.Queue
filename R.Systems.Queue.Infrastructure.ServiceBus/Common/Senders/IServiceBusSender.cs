@@ -7,20 +7,25 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Senders;
 
 public interface IServiceBusSender<TData> : IAsyncDisposable
 {
-    public Task<SenderResult> EnqueueAsync(TData data, Func<TData, ServiceBusMessage>? processor = null);
+    public Task<SenderResult> EnqueueAsync(
+        TData data,
+        Func<TData, ServiceBusMessage>? processor = null,
+        CancellationToken cancellationToken = default
+    );
 
     public Task<SenderResult> EnqueueAsync(
         IReadOnlyCollection<TData> dataCollection,
-        Func<TData, ServiceBusMessage>? processor = null
+        Func<TData, ServiceBusMessage>? processor = null,
+        CancellationToken cancellationToken = default
     );
 }
 
 internal abstract class ServiceBusSenderBase<TData> : IServiceBusSender<TData>
     where TData : class
 {
+    private readonly IMessageSerializer _messageSerializer;
     protected readonly ServiceBusClient ServiceBusClient;
     protected ServiceBusSender? ServiceBusSender;
-    private readonly IMessageSerializer _messageSerializer;
 
     protected ServiceBusSenderBase(
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
@@ -32,31 +37,36 @@ internal abstract class ServiceBusSenderBase<TData> : IServiceBusSender<TData>
         _messageSerializer = messageSerializer;
     }
 
-    public async Task<SenderResult> EnqueueAsync(TData data, Func<TData, ServiceBusMessage>? processor = null)
+    public async Task<SenderResult> EnqueueAsync(
+        TData data,
+        Func<TData, ServiceBusMessage>? processor = null,
+        CancellationToken cancellationToken = default
+    )
     {
-        return await EnqueueAsync(new List<TData> { data }, processor);
+        return await EnqueueAsync([data], processor, cancellationToken);
     }
 
     public async Task<SenderResult> EnqueueAsync(
         IReadOnlyCollection<TData> dataCollection,
-        Func<TData, ServiceBusMessage>? processor = null
+        Func<TData, ServiceBusMessage>? processor = null,
+        CancellationToken cancellationToken = default
     )
     {
-        if (ServiceBusSender == null)
+        if (ServiceBusSender is null)
         {
             throw new InvalidOperationException("ServiceBusSender is null");
         }
 
-        List<ServiceBusMessage> messages = new();
+        List<ServiceBusMessage> messages = [];
         foreach (TData data in dataCollection)
         {
-            ServiceBusMessage message = processor == null
+            ServiceBusMessage message = processor is null
                 ? new ServiceBusMessage(_messageSerializer.Serialize(data))
                 : processor(data);
             messages.Add(message);
         }
 
-        using ServiceBusMessageBatch messageBatch = await ServiceBusSender.CreateMessageBatchAsync();
+        using ServiceBusMessageBatch messageBatch = await ServiceBusSender.CreateMessageBatchAsync(cancellationToken);
         foreach (ServiceBusMessage message in messages)
         {
             bool addMessageResult = messageBatch.TryAddMessage(message);
@@ -68,17 +78,17 @@ internal abstract class ServiceBusSenderBase<TData> : IServiceBusSender<TData>
             }
         }
 
-        await ServiceBusSender.SendMessagesAsync(messageBatch);
+        await ServiceBusSender.SendMessagesAsync(messageBatch, cancellationToken);
 
         return new SenderResult
         {
-            MessageIds = messages.ConvertAll(x => x.MessageId)
+            MessageIds = messages.ConvertAll(message => message.MessageId)
         };
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (ServiceBusSender != null)
+        if (ServiceBusSender is not null)
         {
             await ServiceBusSender.DisposeAsync();
         }

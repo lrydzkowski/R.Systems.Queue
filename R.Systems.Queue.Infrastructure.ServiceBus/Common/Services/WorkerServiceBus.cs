@@ -1,38 +1,38 @@
 ﻿using Microsoft.Extensions.Hosting;
-using R.Systems.Queue.Infrastructure.ServiceBus.Common.Listeners;
+using R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 public class WorkerServiceBus : IHostedService, IAsyncDisposable
 {
-    public WorkerServiceBus(IEnumerable<IServiceBusListener> serviceBusListener)
+    private readonly IEnumerable<IServiceBusConsumer> _serviceBusConsumers;
+
+    public WorkerServiceBus(IEnumerable<IServiceBusConsumer> serviceBusConsumers)
     {
-        ServiceBusListener = serviceBusListener;
+        _serviceBusConsumers = serviceBusConsumers;
     }
 
-    private IEnumerable<IServiceBusListener> ServiceBusListener { get; }
+    public async ValueTask DisposeAsync()
+    {
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
+        {
+            await serviceBusConsumer.DisposeAsync();
+        }
+    }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
-            await serviceBusListener.StartProcessingAsync();
+            await serviceBusConsumer.StartProcessingAsync(cancellationToken);
         }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
-            await serviceBusListener.StopProcessingAsync();
-        }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
-        {
-            await serviceBusListener.DisposeAsync();
+            await serviceBusConsumer.StopProcessingAsync(cancellationToken);
         }
     }
 }

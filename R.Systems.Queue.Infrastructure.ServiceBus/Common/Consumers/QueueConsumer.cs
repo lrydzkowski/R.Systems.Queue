@@ -3,15 +3,15 @@ using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 
-namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Listeners;
+namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
-internal class TopicListener<TOptions, TListener> : ServiceBusListener<TListener>
-    where TOptions : class, ITopicOptions, new()
-    where TListener : class, IMessageListener
+internal class QueueConsumer<TOptions, TListener> : ServiceBusConsumer<TListener>
+    where TOptions : class, IQueueOptions, new()
+    where TListener : class, IMessageConsumer
 {
     private readonly TOptions _options;
 
-    public TopicListener(
+    public QueueConsumer(
         IOptions<TOptions> options,
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         TListener listener,
@@ -24,6 +24,6 @@ internal class TopicListener<TOptions, TListener> : ServiceBusListener<TListener
 
     protected override ServiceBusProcessor CreateProcessor()
     {
-        return ServiceBusClient.CreateProcessor(_options.TopicName, _options.SubscriptionName, ProcessorOptions);
+        return ServiceBusClient.CreateProcessor(_options.QueueName, ProcessorOptions);
     }
 }

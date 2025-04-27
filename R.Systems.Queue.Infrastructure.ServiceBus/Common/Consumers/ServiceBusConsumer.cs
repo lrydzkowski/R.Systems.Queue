@@ -1,17 +1,17 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
 
-namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Listeners;
+namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
-public interface IServiceBusListener : IAsyncDisposable
+public interface IServiceBusConsumer : IAsyncDisposable
 {
-    Task StartProcessingAsync();
+    Task StartProcessingAsync(CancellationToken cancellationToken = default);
 
-    Task StopProcessingAsync();
+    Task StopProcessingAsync(CancellationToken cancellationToken = default);
 }
 
-internal abstract class ServiceBusListener<TListener> : IServiceBusListener
-    where TListener : class, IMessageListener
+internal abstract class ServiceBusConsumer<TListener> : IServiceBusConsumer
+    where TListener : class, IMessageConsumer
 {
     private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
 
@@ -21,7 +21,7 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
     private readonly TListener _listener;
     private ServiceBusProcessor? _processor;
 
-    protected ServiceBusListener(
+    protected ServiceBusConsumer(
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         TListener listener,
         string serviceBusClientName,
@@ -33,12 +33,12 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
         ProcessorOptions = processorOptions;
     }
 
-    public async Task StartProcessingAsync()
+    public async Task StartProcessingAsync(CancellationToken cancellationToken)
     {
-        await _semaphoreSlim.WaitAsync();
+        await _semaphoreSlim.WaitAsync(cancellationToken);
         try
         {
-            await StartAsync();
+            await StartAsync(cancellationToken);
         }
         finally
         {
@@ -46,12 +46,12 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
         }
     }
 
-    public async Task StopProcessingAsync()
+    public async Task StopProcessingAsync(CancellationToken cancellationToken)
     {
-        await _semaphoreSlim.WaitAsync();
+        await _semaphoreSlim.WaitAsync(cancellationToken);
         try
         {
-            await CloseAsync();
+            await CloseAsync(cancellationToken);
         }
         finally
         {
@@ -72,7 +72,7 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
         }
     }
 
-    private async Task StartAsync()
+    private async Task StartAsync(CancellationToken cancellationToken = default)
     {
         if (!CanBeStarted())
         {
@@ -82,7 +82,7 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
         _processor = CreateProcessor();
         _processor.ProcessMessageAsync += _listener.ProcessMessageAsync;
         _processor.ProcessErrorAsync += _listener.ProcessErrorAsync;
-        await _processor.StartProcessingAsync();
+        await _processor.StartProcessingAsync(cancellationToken);
     }
 
     protected abstract ServiceBusProcessor CreateProcessor();
@@ -92,14 +92,14 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
         return _processor is not { IsProcessing: true };
     }
 
-    private async Task CloseAsync()
+    private async Task CloseAsync(CancellationToken cancellationToken = default)
     {
         if (!CanBeClosed())
         {
             return;
         }
 
-        await _processor!.CloseAsync();
+        await _processor!.CloseAsync(cancellationToken);
         _processor.ProcessMessageAsync -= _listener.ProcessMessageAsync;
         _processor.ProcessErrorAsync -= _listener.ProcessErrorAsync;
     }
@@ -111,7 +111,7 @@ internal abstract class ServiceBusListener<TListener> : IServiceBusListener
 
     private async Task DisposeServiceBusAndProcessorAsync()
     {
-        if (_processor != null)
+        if (_processor is not null)
         {
             await CloseAsync();
             await _processor.DisposeAsync();

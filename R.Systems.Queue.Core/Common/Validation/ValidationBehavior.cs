@@ -22,10 +22,10 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
     {
         if (!_validators.Any())
         {
-            return await next();
+            return await next(cancellationToken);
         }
 
-        List<ValidationFailure> validationFailures = new();
+        List<ValidationFailure> validationFailures = [];
         ValidationContext<TRequest> context = new(request);
         foreach (IValidator<TRequest> validator in _validators)
         {
@@ -43,6 +43,6 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
             throw new ValidationException(validationFailures);
         }
 
-        return await next();
+        return await next(cancellationToken);
     }
 }
