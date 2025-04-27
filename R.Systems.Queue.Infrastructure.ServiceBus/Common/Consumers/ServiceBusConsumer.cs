@@ -10,26 +10,25 @@ public interface IServiceBusConsumer : IAsyncDisposable
     Task StopProcessingAsync(CancellationToken cancellationToken = default);
 }
 
-internal abstract class ServiceBusConsumer<TListener> : IServiceBusConsumer
-    where TListener : class, IMessageConsumer
+internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
+    where TConsumer : class, IMessageConsumer
 {
+    private readonly TConsumer _consumer;
     private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
-
-    protected readonly ServiceBusClient ServiceBusClient;
     protected readonly ServiceBusProcessorOptions ProcessorOptions;
 
-    private readonly TListener _listener;
+    protected readonly ServiceBusClient ServiceBusClient;
     private ServiceBusProcessor? _processor;
 
     protected ServiceBusConsumer(
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
-        TListener listener,
+        TConsumer consumer,
         string serviceBusClientName,
         ServiceBusProcessorOptions processorOptions
     )
     {
         ServiceBusClient = serviceBusClientFactory.CreateClient(serviceBusClientName);
-        _listener = listener;
+        _consumer = consumer;
         ProcessorOptions = processorOptions;
     }
 
@@ -80,8 +79,8 @@ internal abstract class ServiceBusConsumer<TListener> : IServiceBusConsumer
         }
 
         _processor = CreateProcessor();
-        _processor.ProcessMessageAsync += _listener.ProcessMessageAsync;
-        _processor.ProcessErrorAsync += _listener.ProcessErrorAsync;
+        _processor.ProcessMessageAsync += _consumer.ProcessMessageAsync;
+        _processor.ProcessErrorAsync += _consumer.ProcessErrorAsync;
         await _processor.StartProcessingAsync(cancellationToken);
     }
 
@@ -100,8 +99,8 @@ internal abstract class ServiceBusConsumer<TListener> : IServiceBusConsumer
         }
 
         await _processor!.CloseAsync(cancellationToken);
-        _processor.ProcessMessageAsync -= _listener.ProcessMessageAsync;
-        _processor.ProcessErrorAsync -= _listener.ProcessErrorAsync;
+        _processor.ProcessMessageAsync -= _consumer.ProcessMessageAsync;
+        _processor.ProcessErrorAsync -= _consumer.ProcessErrorAsync;
     }
 
     private bool CanBeClosed()

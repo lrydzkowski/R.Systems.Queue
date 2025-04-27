@@ -5,19 +5,19 @@ using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
-internal class QueueConsumer<TOptions, TListener> : ServiceBusConsumer<TListener>
+internal class QueueConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer>
     where TOptions : class, IQueueOptions, new()
-    where TListener : class, IMessageConsumer
+    where TConsumer : class, IMessageConsumer
 {
     private readonly TOptions _options;
 
     public QueueConsumer(
         IOptions<TOptions> options,
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
-        TListener listener,
+        TConsumer consumer,
         string serviceBusClientName,
         ServiceBusProcessorOptions processorOptions
-    ) : base(serviceBusClientFactory, listener, serviceBusClientName, processorOptions)
+    ) : base(serviceBusClientFactory, consumer, serviceBusClientName, processorOptions)
     {
         _options = options.Value;
     }

@@ -16,38 +16,38 @@ public static class DependencyInjection
         services.ConfigureServices();
     }
 
-    public static void ConfigureServiceBusQueueConsumer<TListener, TOptions>(
+    public static void ConfigureServiceBusQueueConsumer<TConsumer, TOptions>(
         this IServiceCollection services,
         ServiceBusProcessorOptions? processorOptions = null
-    ) where TListener : class, IMessageConsumer where TOptions : class, IQueueOptions, new()
+    ) where TConsumer : class, IMessageConsumer where TOptions : class, IQueueOptions, new()
     {
-        string name = typeof(TListener).Name;
+        string name = typeof(TConsumer).Name;
         services.ConfigureServiceBusClient<TOptions>(name);
         services.AddSingleton<IServiceBusConsumer>(serviceProvider =>
-            ActivatorUtilities.CreateInstance<QueueConsumer<TOptions, TListener>>(
+            ActivatorUtilities.CreateInstance<QueueConsumer<TOptions, TConsumer>>(
                 serviceProvider,
                 name,
                 processorOptions ?? new ServiceBusProcessorOptions()
             )
         );
-        services.AddSingleton<TListener>();
+        services.AddSingleton<TConsumer>();
     }
 
-    public static void ConfigureServiceBusTopicConsumer<TListener, TOptions>(
+    public static void ConfigureServiceBusTopicConsumer<TConsumer, TOptions>(
         this IServiceCollection services,
         ServiceBusProcessorOptions? processorOptions = null
-    ) where TListener : class, IMessageConsumer where TOptions : class, ITopicOptions, new()
+    ) where TConsumer : class, IMessageConsumer where TOptions : class, ITopicOptions, new()
     {
-        string name = typeof(TListener).Name;
+        string name = typeof(TConsumer).Name;
         services.ConfigureServiceBusClient<TOptions>(name);
         services.AddSingleton<IServiceBusConsumer>(serviceProvider =>
-            ActivatorUtilities.CreateInstance<TopicConsumer<TOptions, TListener>>(
+            ActivatorUtilities.CreateInstance<TopicConsumer<TOptions, TConsumer>>(
                 serviceProvider,
                 name,
                 processorOptions ?? new ServiceBusProcessorOptions()
             )
         );
-        services.AddSingleton<TListener>();
+        services.AddSingleton<TConsumer>();
     }
 
     public static void ConfigureServiceBusQueueSender<TSender, TSenderImplementation, TData, TOptions>(
