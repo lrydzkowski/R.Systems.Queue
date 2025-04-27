@@ -85,6 +85,7 @@ public static class DependencyInjection
     private static void ConfigureServices(this IServiceCollection services)
     {
         services.AddSingleton<IMessageSerializer, MessageSerializer>();
+        services.AddSingleton<INamesResolver, NamesResolver>();
         services.AddHostedService<WorkerServiceBus>();
     }
 

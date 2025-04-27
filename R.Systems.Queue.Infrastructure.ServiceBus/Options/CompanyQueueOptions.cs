@@ -9,4 +9,8 @@ public class CompanyQueueOptions : IQueueOptions
     public string ConnectionString { get; set; } = "";
 
     public string QueueName { get; init; } = "";
+
+    public bool CreateQueueOnStartup { get; init; }
+
+    public bool UseMachineNameAsQueueSuffix { get; init; }
 }

@@ -13,9 +13,10 @@ internal class TopicSender<TData, TOptions> : ServiceBusSenderBase<TData>
         IOptions<TOptions> options,
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         IMessageSerializer messageSerializer,
-        string serviceBusClientName
+        string serviceBusClientName,
+        INamesResolver namesResolver
     ) : base(serviceBusClientFactory, messageSerializer, serviceBusClientName)
     {
-        ServiceBusSender = ServiceBusClient.CreateSender(options.Value.TopicName);
+        ServiceBusSender = ServiceBusClient.CreateSender(namesResolver.ResolveTopicName(options.Value));
     }
 }

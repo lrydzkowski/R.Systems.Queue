@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
+using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
@@ -9,6 +10,7 @@ internal class QueueConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer
     where TOptions : class, IQueueOptions, new()
     where TConsumer : class, IMessageConsumer
 {
+    private readonly INamesResolver _namesResolver;
     private readonly TOptions _options;
 
     public QueueConsumer(
@@ -16,14 +18,16 @@ internal class QueueConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         TConsumer consumer,
         string serviceBusClientName,
-        ServiceBusProcessorOptions processorOptions
+        ServiceBusProcessorOptions processorOptions,
+        INamesResolver namesResolver
     ) : base(serviceBusClientFactory, consumer, serviceBusClientName, processorOptions)
     {
+        _namesResolver = namesResolver;
         _options = options.Value;
     }
 
     protected override ServiceBusProcessor CreateProcessor()
     {
-        return ServiceBusClient.CreateProcessor(_options.QueueName, ProcessorOptions);
+        return ServiceBusClient.CreateProcessor(_namesResolver.ResolveQueueName(_options), ProcessorOptions);
     }
 }

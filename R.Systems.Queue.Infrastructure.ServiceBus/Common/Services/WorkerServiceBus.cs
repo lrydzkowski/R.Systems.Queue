@@ -5,10 +5,18 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 public class WorkerServiceBus : IHostedService, IAsyncDisposable
 {
+    private readonly IEnumerable<IServiceBusQueueInfrastructureManager> _queueInfrastructureManagers;
     private readonly IEnumerable<IServiceBusConsumer> _serviceBusConsumers;
+    private readonly IEnumerable<IServiceBusTopicInfrastructureManager> _topicInfrastructureManagers;
 
-    public WorkerServiceBus(IEnumerable<IServiceBusConsumer> serviceBusConsumers)
+    public WorkerServiceBus(
+        IEnumerable<IServiceBusQueueInfrastructureManager> queueInfrastructureManagers,
+        IEnumerable<IServiceBusTopicInfrastructureManager> topicInfrastructureManagers,
+        IEnumerable<IServiceBusConsumer> serviceBusConsumers
+    )
     {
+        _queueInfrastructureManagers = queueInfrastructureManagers;
+        _topicInfrastructureManagers = topicInfrastructureManagers;
         _serviceBusConsumers = serviceBusConsumers;
     }
 
@@ -22,6 +30,8 @@ public class WorkerServiceBus : IHostedService, IAsyncDisposable
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
+        await CreateInfrastructureAsync(cancellationToken);
+
         foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
             await serviceBusConsumer.StartProcessingAsync(cancellationToken);
@@ -33,6 +43,19 @@ public class WorkerServiceBus : IHostedService, IAsyncDisposable
         foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
             await serviceBusConsumer.StopProcessingAsync(cancellationToken);
+        }
+    }
+
+    private async Task CreateInfrastructureAsync(CancellationToken cancellationToken)
+    {
+        foreach (IServiceBusQueueInfrastructureManager queueInfrastructureManager in _queueInfrastructureManagers)
+        {
+            await queueInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
+        }
+
+        foreach (IServiceBusTopicInfrastructureManager topicInfrastructureManager in _topicInfrastructureManagers)
+        {
+            await topicInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
         }
     }
 }
