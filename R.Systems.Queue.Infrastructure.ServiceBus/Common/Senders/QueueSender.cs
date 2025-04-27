@@ -13,9 +13,10 @@ internal class QueueSender<TData, TOptions> : ServiceBusSenderBase<TData>
         IOptions<TOptions> options,
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
         IMessageSerializer messageSerializer,
-        string serviceBusClientName
+        string serviceBusClientName,
+        INamesResolver namesResolver
     ) : base(serviceBusClientFactory, messageSerializer, serviceBusClientName)
     {
-        ServiceBusSender = ServiceBusClient.CreateSender(options.Value.QueueName);
+        ServiceBusSender = ServiceBusClient.CreateSender(namesResolver.ResolveQueueName(options.Value));
     }
 }

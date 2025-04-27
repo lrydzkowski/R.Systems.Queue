@@ -14,21 +14,6 @@ public static class DependencyInjection
         services.AddValidatorsFromAssemblyContaining(typeof(DependencyInjection), includeInternalTypes: true);
     }
 
-    public static void ConfigureOptionsWithValidation<TOptions, TValidator>(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        string configurationPosition
-    )
-        where TOptions : class
-        where TValidator : class, IValidator<TOptions>, new()
-    {
-        services.AddSingleton<IValidator<TOptions>, TValidator>();
-        services.AddOptions<TOptions>()
-            .Bind(configuration.GetSection(configurationPosition))
-            .ValidateFluently()
-            .ValidateOnStart();
-    }
-
     public static void ConfigureOptions<TOptions>(
         this IServiceCollection services,
         IConfiguration configuration,

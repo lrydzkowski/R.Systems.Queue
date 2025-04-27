@@ -16,6 +16,6 @@ public class SendCompanyToTopicCommandHandler : IRequestHandler<SendCompanyToTop
 
     public async Task Handle(SendCompanyToTopicCommand command, CancellationToken cancellationToken)
     {
-        await _sender.SendAsync(command.Company);
+        await _sender.SendAsync(command.Company, cancellationToken);
     }
 }

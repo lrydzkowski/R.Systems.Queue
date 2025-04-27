@@ -11,4 +11,12 @@ public class CompanyTopicOptions : ITopicOptions
     public string TopicName { get; init; } = "";
 
     public string SubscriptionName { get; init; } = "";
+
+    public bool CreateTopicOnStartup { get; init; }
+
+    public bool UseMachineNameAsTopicSuffix { get; init; }
+
+    public bool CreateSubscriptionOnStartup { get; init; }
+
+    public bool UseMachineNameAsSubscriptionSuffix { get; init; }
 }

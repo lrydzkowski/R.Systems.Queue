@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging.ServiceBus;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common;
 using R.Systems.Queue.Infrastructure.ServiceBus.Options;
-using R.Systems.Queue.WebApi.Listeners;
+using R.Systems.Queue.WebApi.Consumers;
 
 namespace R.Systems.Queue.WebApi;
 
@@ -12,7 +12,7 @@ public static class DependencyInjection
         services.AddControllers();
         services.AddEndpointsApiExplorer();
         services.ConfigureSwagger();
-        services.ConfigureServiceBusListeners();
+        services.ConfigureServiceBusConsumers();
     }
 
     private static void ConfigureSwagger(this IServiceCollection services)
@@ -20,16 +20,16 @@ public static class DependencyInjection
         services.AddSwaggerGen();
     }
 
-    private static void ConfigureServiceBusListeners(this IServiceCollection services)
+    private static void ConfigureServiceBusConsumers(this IServiceCollection services)
     {
-        services.ConfigureServiceBusQueueListener<CompanyQueueListener, CompanyQueueOptions>(
+        services.ConfigureServiceBusQueueConsumer<CompanyQueueConsumer, CompanyQueueOptions>(
             new ServiceBusProcessorOptions
             {
                 MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
                 MaxConcurrentCalls = 1
             }
         );
-        services.ConfigureServiceBusTopicListener<CompanyTopicListener, CompanyTopicOptions>(
+        services.ConfigureServiceBusTopicConsumer<CompanyTopicConsumer, CompanyTopicOptions>(
             new ServiceBusProcessorOptions
             {
                 MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),

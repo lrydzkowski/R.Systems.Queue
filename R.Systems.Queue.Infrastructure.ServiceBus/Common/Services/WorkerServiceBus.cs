@@ -1,38 +1,61 @@
 ﻿using Microsoft.Extensions.Hosting;
-using R.Systems.Queue.Infrastructure.ServiceBus.Common.Listeners;
+using R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 public class WorkerServiceBus : IHostedService, IAsyncDisposable
 {
-    public WorkerServiceBus(IEnumerable<IServiceBusListener> serviceBusListener)
+    private readonly IEnumerable<IQueueInfrastructureManager> _queueInfrastructureManagers;
+    private readonly IEnumerable<IServiceBusConsumer> _serviceBusConsumers;
+    private readonly IEnumerable<ITopicInfrastructureManager> _topicInfrastructureManagers;
+
+    public WorkerServiceBus(
+        IEnumerable<IQueueInfrastructureManager> queueInfrastructureManagers,
+        IEnumerable<ITopicInfrastructureManager> topicInfrastructureManagers,
+        IEnumerable<IServiceBusConsumer> serviceBusConsumers
+    )
     {
-        ServiceBusListener = serviceBusListener;
+        _queueInfrastructureManagers = queueInfrastructureManagers;
+        _topicInfrastructureManagers = topicInfrastructureManagers;
+        _serviceBusConsumers = serviceBusConsumers;
     }
 
-    private IEnumerable<IServiceBusListener> ServiceBusListener { get; }
+    public async ValueTask DisposeAsync()
+    {
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
+        {
+            await serviceBusConsumer.DisposeAsync();
+        }
+    }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
+        await CreateInfrastructureAsync(cancellationToken);
+
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
-            await serviceBusListener.StartProcessingAsync();
+            await serviceBusConsumer.StartProcessingAsync(cancellationToken);
         }
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
+        foreach (IServiceBusConsumer serviceBusConsumer in _serviceBusConsumers)
         {
-            await serviceBusListener.StopProcessingAsync();
+            await serviceBusConsumer.StopProcessingAsync(cancellationToken);
         }
     }
 
-    public async ValueTask DisposeAsync()
+    private async Task CreateInfrastructureAsync(CancellationToken cancellationToken)
     {
-        foreach (IServiceBusListener serviceBusListener in ServiceBusListener)
+        foreach (IQueueInfrastructureManager queueInfrastructureManager in _queueInfrastructureManagers)
         {
-            await serviceBusListener.DisposeAsync();
+            await queueInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
+        }
+
+        foreach (ITopicInfrastructureManager topicInfrastructureManager in _topicInfrastructureManagers)
+        {
+            await topicInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
         }
     }
 }
