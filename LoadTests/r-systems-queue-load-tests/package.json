@@ -1,0 +1,22 @@
+{
+  "name": "r-systems-queue-load-tests",
+  "version": "1.0.0",
+  "description": "Load tests in k6",
+  "scripts": {
+    "build": "tsc",
+    "test1-k6": "k6 run ./dist/01-create-messages-tests.js",
+    "test1": "npm run -s build & npm run -s test1-k6",
+    "lint": "npx eslint ."
+  },
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/k6": "^0.54.1",
+    "eslint": "^9.13.0",
+    "prettier": "^3.3.3",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.10.0"
+  }
+}
