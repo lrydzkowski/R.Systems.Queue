@@ -7,22 +7,22 @@ using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
-public interface IServiceBusTopicInfrastructureManager
+public interface ITopicInfrastructureManager
 {
     Task CreateInfrastructureAsync(CancellationToken cancellationToken = default);
 }
 
-internal class ServiceBusTopicInfrastructureManager<TOptions> : IServiceBusTopicInfrastructureManager
+internal class TopicInfrastructureManager<TOptions> : ITopicInfrastructureManager
     where TOptions : class, ITopicOptions
 {
-    private readonly ILogger<IServiceBusTopicInfrastructureManager> _logger;
+    private readonly ILogger<ITopicInfrastructureManager> _logger;
     private readonly INamesResolver _namesResolver;
     private readonly TOptions _options;
 
-    public ServiceBusTopicInfrastructureManager(
+    public TopicInfrastructureManager(
         IOptions<TOptions> options,
         INamesResolver namesResolver,
-        ILogger<ServiceBusTopicInfrastructureManager<TOptions>> logger
+        ILogger<TopicInfrastructureManager<TOptions>> logger
     )
     {
         _options = options.Value;

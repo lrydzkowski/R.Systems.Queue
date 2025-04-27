@@ -44,11 +44,7 @@ public static class DependencyInjection
 
     private static void ConfigureInfrastructureManagers(this IServiceCollection services)
     {
-        services
-            .AddSingleton<IServiceBusQueueInfrastructureManager,
-                ServiceBusQueueInfrastructureManager<CompanyQueueOptions>>();
-        services
-            .AddSingleton<IServiceBusTopicInfrastructureManager,
-                ServiceBusTopicInfrastructureManager<CompanyTopicOptions>>();
+        services.AddSingleton<IQueueInfrastructureManager, QueueInfrastructureManager<CompanyQueueOptions>>();
+        services.AddSingleton<ITopicInfrastructureManager, TopicInfrastructureManager<CompanyTopicOptions>>();
     }
 }
