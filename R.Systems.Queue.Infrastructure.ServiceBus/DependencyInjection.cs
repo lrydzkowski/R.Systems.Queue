@@ -4,7 +4,6 @@ using R.Systems.Queue.Core;
 using R.Systems.Queue.Core.Commands.SendCompanyToQueue;
 using R.Systems.Queue.Core.Commands.SendCompanyToTopic;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common;
-using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 using R.Systems.Queue.Infrastructure.ServiceBus.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Senders;
 
@@ -17,7 +16,7 @@ public static class DependencyInjection
         services.ConfigureServiceBusCommonServices();
         services.ConfigureOptions(configuration);
         services.ConfigureSenders();
-        services.ConfigureInfrastructureManagers();
+        services.ConfigureInfrastructureCreators();
     }
 
     private static void ConfigureOptions(this IServiceCollection services, IConfiguration configuration)
@@ -42,9 +41,9 @@ public static class DependencyInjection
                 CompanyTopicOptions>();
     }
 
-    private static void ConfigureInfrastructureManagers(this IServiceCollection services)
+    private static void ConfigureInfrastructureCreators(this IServiceCollection services)
     {
-        services.AddSingleton<IQueueInfrastructureManager, QueueInfrastructureManager<CompanyQueueOptions>>();
-        services.AddSingleton<ITopicInfrastructureManager, TopicInfrastructureManager<CompanyTopicOptions>>();
+        services.ConfigureQueueCreator<CompanyQueueOptions>();
+        services.ConfigureTopicCreator<CompanyTopicOptions>();
     }
 }

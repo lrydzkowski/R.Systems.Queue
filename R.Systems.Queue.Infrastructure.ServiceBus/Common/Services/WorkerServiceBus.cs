@@ -5,18 +5,15 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 public class WorkerServiceBus : IHostedService, IAsyncDisposable
 {
-    private readonly IEnumerable<IQueueInfrastructureManager> _queueInfrastructureManagers;
+    private readonly IEnumerable<IInfrastructureManager> _infrastructureManagers;
     private readonly IEnumerable<IServiceBusConsumer> _serviceBusConsumers;
-    private readonly IEnumerable<ITopicInfrastructureManager> _topicInfrastructureManagers;
 
     public WorkerServiceBus(
-        IEnumerable<IQueueInfrastructureManager> queueInfrastructureManagers,
-        IEnumerable<ITopicInfrastructureManager> topicInfrastructureManagers,
+        IEnumerable<IInfrastructureManager> infrastructureManagers,
         IEnumerable<IServiceBusConsumer> serviceBusConsumers
     )
     {
-        _queueInfrastructureManagers = queueInfrastructureManagers;
-        _topicInfrastructureManagers = topicInfrastructureManagers;
+        _infrastructureManagers = infrastructureManagers;
         _serviceBusConsumers = serviceBusConsumers;
     }
 
@@ -48,14 +45,9 @@ public class WorkerServiceBus : IHostedService, IAsyncDisposable
 
     private async Task CreateInfrastructureAsync(CancellationToken cancellationToken)
     {
-        foreach (IQueueInfrastructureManager queueInfrastructureManager in _queueInfrastructureManagers)
+        foreach (IInfrastructureManager infrastructureManager in _infrastructureManagers)
         {
-            await queueInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
-        }
-
-        foreach (ITopicInfrastructureManager topicInfrastructureManager in _topicInfrastructureManagers)
-        {
-            await topicInfrastructureManager.CreateInfrastructureAsync(cancellationToken);
+            await infrastructureManager.CreateInfrastructureAsync(cancellationToken);
         }
     }
 }

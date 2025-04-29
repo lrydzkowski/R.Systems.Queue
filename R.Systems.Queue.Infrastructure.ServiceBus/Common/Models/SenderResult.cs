@@ -2,5 +2,5 @@
 
 public class SenderResult
 {
-    public List<string> MessageIds { get; init; } = new();
+    public List<string> MessageIds { get; init; } = [];
 }

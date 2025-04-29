@@ -82,6 +82,18 @@ public static class DependencyInjection
         services.AddScoped<TSender, TSenderImplementation>();
     }
 
+    public static void ConfigureQueueCreator<TOptions>(this IServiceCollection services)
+        where TOptions : class, IQueueOptions
+    {
+        services.AddSingleton<IInfrastructureManager, QueueInfrastructureManager<TOptions>>();
+    }
+
+    public static void ConfigureTopicCreator<TOptions>(this IServiceCollection services)
+        where TOptions : class, ITopicOptions
+    {
+        services.AddSingleton<IInfrastructureManager, TopicInfrastructureManager<TOptions>>();
+    }
+
     private static void ConfigureServices(this IServiceCollection services)
     {
         services.AddSingleton<IMessageSerializer, MessageSerializer>();
