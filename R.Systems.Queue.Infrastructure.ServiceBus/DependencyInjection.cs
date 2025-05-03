@@ -29,6 +29,14 @@ public static class DependencyInjection
             configuration,
             $"{ServiceBusOptions.Position}:{CompanyTopicOptions.Position}"
         );
+        services.ConfigureOptions<Company2QueueOptions>(
+            configuration,
+            $"{ServiceBusOptions.Position}:{Company2QueueOptions.Position}"
+        );
+        services.ConfigureOptions<Company2TopicOptions>(
+            configuration,
+            $"{ServiceBusOptions.Position}:{Company2TopicOptions.Position}"
+        );
     }
 
     private static void ConfigureSenders(this IServiceCollection services)
@@ -45,5 +53,7 @@ public static class DependencyInjection
     {
         services.ConfigureQueueCreator<CompanyQueueOptions>();
         services.ConfigureTopicCreator<CompanyTopicOptions>();
+        services.ConfigureQueueCreator<Company2QueueOptions>();
+        services.ConfigureTopicCreator<Company2TopicOptions>();
     }
 }

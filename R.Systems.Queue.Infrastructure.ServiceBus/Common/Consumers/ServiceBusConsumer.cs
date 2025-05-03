@@ -16,7 +16,6 @@ internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
     private readonly TConsumer _consumer;
     private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
     protected readonly ServiceBusProcessorOptions ProcessorOptions;
-
     protected readonly ServiceBusClient ServiceBusClient;
     private ServiceBusProcessor? _processor;
 
