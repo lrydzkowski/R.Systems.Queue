@@ -7,15 +7,10 @@ using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
-public interface IQueueInfrastructureManager
-{
-    Task CreateInfrastructureAsync(CancellationToken cancellationToken = default);
-}
-
-internal class QueueInfrastructureManager<TOptions> : IQueueInfrastructureManager
+internal class QueueInfrastructureManager<TOptions> : IInfrastructureManager
     where TOptions : class, IQueueOptions
 {
-    private readonly ILogger<IQueueInfrastructureManager> _logger;
+    private readonly ILogger<IInfrastructureManager> _logger;
     private readonly INamesResolver _namesResolver;
     private readonly TOptions _options;
 

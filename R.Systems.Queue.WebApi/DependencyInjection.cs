@@ -25,14 +25,28 @@ public static class DependencyInjection
         services.ConfigureServiceBusQueueConsumer<CompanyQueueConsumer, CompanyQueueOptions>(
             new ServiceBusProcessorOptions
             {
-                MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
+                MaxAutoLockRenewalDuration = TimeSpan.FromHours(1),
+                MaxConcurrentCalls = 1
+            }
+        );
+        services.ConfigureServiceBusQueueConsumer<Company2QueueConsumer, Company2QueueOptions>(
+            new ServiceBusProcessorOptions
+            {
+                MaxAutoLockRenewalDuration = TimeSpan.FromHours(1),
                 MaxConcurrentCalls = 1
             }
         );
         services.ConfigureServiceBusTopicConsumer<CompanyTopicConsumer, CompanyTopicOptions>(
             new ServiceBusProcessorOptions
             {
-                MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(10),
+                MaxAutoLockRenewalDuration = TimeSpan.FromHours(1),
+                MaxConcurrentCalls = 1
+            }
+        );
+        services.ConfigureServiceBusTopicConsumer<Company2TopicConsumer, Company2TopicOptions>(
+            new ServiceBusProcessorOptions
+            {
+                MaxAutoLockRenewalDuration = TimeSpan.FromHours(1),
                 MaxConcurrentCalls = 1
             }
         );

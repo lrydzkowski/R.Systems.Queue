@@ -8,6 +8,8 @@ public interface IMessageSerializer
     TMessage Deserialize<TMessage>(string message);
 
     string Serialize<TMessage>(TMessage message);
+
+    TData? Deserialize<TData>(BinaryData binaryData);
 }
 
 public class MessageSerializer : IMessageSerializer
@@ -42,6 +44,11 @@ public class MessageSerializer : IMessageSerializer
 
             throw;
         }
+    }
+
+    public TData? Deserialize<TData>(BinaryData binaryData)
+    {
+        return binaryData.ToObjectFromJson<TData>(Options);
     }
 
     public string Serialize<TMessage>(TMessage message)
