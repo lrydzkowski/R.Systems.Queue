@@ -130,7 +130,7 @@ internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
             );
         }
 
-        await consumer.ProcessMessageAsync(args, messageSerializer);
+        await consumer.ConsumeMessageAsync(args, messageSerializer);
     }
 
     private Task ProcessErrorAsync(ProcessErrorEventArgs arg)

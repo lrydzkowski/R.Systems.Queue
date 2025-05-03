@@ -5,12 +5,12 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 
 public interface IMessageConsumer
 {
-    public Task ProcessMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer);
+    public Task ConsumeMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer);
 }
 
 public abstract class TypedMessageConsumer<TData> : IMessageConsumer
 {
-    public async Task ProcessMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer)
+    public async Task ConsumeMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer)
     {
         TData? data = messageSerializer.Deserialize<TData>(args.Message.Body);
         if (data is null)
@@ -18,8 +18,8 @@ public abstract class TypedMessageConsumer<TData> : IMessageConsumer
             throw new InvalidOperationException("An unexpected error has occurred in deserializing the message");
         }
 
-        await ProcessMessageAsync(data);
+        await ConsumeMessageAsync(data);
     }
 
-    public abstract Task ProcessMessageAsync(TData data);
+    public abstract Task ConsumeMessageAsync(TData data);
 }

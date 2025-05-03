@@ -13,7 +13,7 @@ public class CompanyQueueConsumer : IMessageConsumer
         _logger = logger;
     }
 
-    public Task ProcessMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer)
+    public Task ConsumeMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer)
     {
         ServiceBusReceivedMessage? message = args.Message;
         string body = message.Body.ToString();

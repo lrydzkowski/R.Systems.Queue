@@ -12,7 +12,7 @@ public class Company2QueueConsumer : TypedMessageConsumer<CompanyQueueMessage>
         _logger = logger;
     }
 
-    public override Task ProcessMessageAsync(CompanyQueueMessage data)
+    public override Task ConsumeMessageAsync(CompanyQueueMessage data)
     {
         _logger.LogInformation("Company, id: {Id}, name: {Name}", data.Id, data.Name);
 
