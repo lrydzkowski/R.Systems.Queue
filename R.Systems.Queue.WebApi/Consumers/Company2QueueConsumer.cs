@@ -1,21 +1,20 @@
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
-using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 using R.Systems.Queue.Infrastructure.ServiceBus.Senders;
 
 namespace R.Systems.Queue.WebApi.Consumers;
 
 public class Company2QueueConsumer : TypedMessageConsumer<CompanyQueueMessage>
 {
-    public Company2QueueConsumer(
-        ILogger<Company2QueueConsumer> logger,
-        IMessageSerializer messageSerializer
-    ) : base(logger, messageSerializer)
+    private readonly ILogger<Company2QueueConsumer> _logger;
+
+    public Company2QueueConsumer(ILogger<Company2QueueConsumer> logger)
     {
+        _logger = logger;
     }
 
-    public override Task ProcessMessageAsync(CompanyQueueMessage data)
+    public override Task ConsumeMessageAsync(CompanyQueueMessage data)
     {
-        Logger.LogInformation("Company, id: {Id}, name: {Name}", data.Id, data.Name);
+        _logger.LogInformation("Company, id: {Id}, name: {Name}", data.Id, data.Name);
 
         return Task.CompletedTask;
     }

@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Azure;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
@@ -16,18 +17,19 @@ internal class QueueConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer
     public QueueConsumer(
         IOptions<TOptions> options,
         IAzureClientFactory<ServiceBusClient> serviceBusClientFactory,
-        TConsumer consumer,
         string serviceBusClientName,
         ServiceBusProcessorOptions processorOptions,
-        INamesResolver namesResolver
-    ) : base(serviceBusClientFactory, consumer, serviceBusClientName, processorOptions)
+        INamesResolver namesResolver,
+        IServiceProvider serviceProvider,
+        ILogger<QueueConsumer<TOptions, TConsumer>> logger
+    ) : base(serviceBusClientFactory, serviceBusClientName, processorOptions, serviceProvider, logger)
     {
         _namesResolver = namesResolver;
         _options = options.Value;
     }
 
-    protected override ServiceBusProcessor CreateProcessor()
+    protected override ServiceBusProcessor? CreateProcessor()
     {
-        return ServiceBusClient.CreateProcessor(_namesResolver.ResolveQueueName(_options), ProcessorOptions);
+        return ServiceBusClient?.CreateProcessor(_namesResolver.ResolveQueueName(_options), ProcessorOptions);
     }
 }

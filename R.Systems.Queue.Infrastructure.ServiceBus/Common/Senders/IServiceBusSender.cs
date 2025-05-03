@@ -7,13 +7,13 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Senders;
 
 public interface IServiceBusSender<TData> : IAsyncDisposable
 {
-    public Task<SenderResult> EnqueueAsync(
+    public Task<SenderResult> SendAsync(
         TData data,
         Func<TData, ServiceBusMessage>? processor = null,
         CancellationToken cancellationToken = default
     );
 
-    public Task<SenderResult> EnqueueAsync(
+    public Task<SenderResult> SendAsync(
         IReadOnlyCollection<TData> dataCollection,
         Func<TData, ServiceBusMessage>? processor = null,
         CancellationToken cancellationToken = default
@@ -37,16 +37,16 @@ internal abstract class ServiceBusSenderBase<TData> : IServiceBusSender<TData>
         _messageSerializer = messageSerializer;
     }
 
-    public async Task<SenderResult> EnqueueAsync(
+    public async Task<SenderResult> SendAsync(
         TData data,
         Func<TData, ServiceBusMessage>? processor = null,
         CancellationToken cancellationToken = default
     )
     {
-        return await EnqueueAsync([data], processor, cancellationToken);
+        return await SendAsync([data], processor, cancellationToken);
     }
 
-    public async Task<SenderResult> EnqueueAsync(
+    public async Task<SenderResult> SendAsync(
         IReadOnlyCollection<TData> dataCollection,
         Func<TData, ServiceBusMessage>? processor = null,
         CancellationToken cancellationToken = default

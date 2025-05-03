@@ -16,6 +16,6 @@ internal class CompanyQueueSender : ICompanyQueueSender
     public async Task SendAsync(Company company, CancellationToken cancellationToken = default)
     {
         CompanyQueueMessage companyMessage = new(company.Id, company.Name);
-        await _queueSender.EnqueueAsync(companyMessage, cancellationToken: cancellationToken);
+        await _queueSender.SendAsync(companyMessage, cancellationToken: cancellationToken);
     }
 }
