@@ -30,7 +30,7 @@ public static class DependencyInjection
                 processorOptions ?? new ServiceBusProcessorOptions()
             )
         );
-        services.AddSingleton<TConsumer>();
+        services.AddScoped<TConsumer>();
     }
 
     public static void ConfigureServiceBusTopicConsumer<TConsumer, TOptions>(
@@ -47,7 +47,7 @@ public static class DependencyInjection
                 processorOptions ?? new ServiceBusProcessorOptions()
             )
         );
-        services.AddSingleton<TConsumer>();
+        services.AddScoped<TConsumer>();
     }
 
     public static void ConfigureServiceBusQueueSender<TSender, TSenderImplementation, TData, TOptions>(

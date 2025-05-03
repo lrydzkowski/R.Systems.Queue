@@ -1,5 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
+using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 
 namespace R.Systems.Queue.WebApi.Consumers;
 
@@ -12,18 +13,11 @@ public class CompanyQueueConsumer : IMessageConsumer
         _logger = logger;
     }
 
-    public Task ProcessMessageAsync(ProcessMessageEventArgs args)
+    public Task ProcessMessageAsync(ProcessMessageEventArgs args, IMessageSerializer messageSerializer)
     {
         ServiceBusReceivedMessage? message = args.Message;
         string body = message.Body.ToString();
         _logger.LogInformation("Company queue consumer message: {Body}", body);
-
-        return Task.CompletedTask;
-    }
-
-    public Task ProcessErrorAsync(ProcessErrorEventArgs arg)
-    {
-        _logger.LogError(arg.Exception, "An unexpected error has occurred in the company queue consumer");
 
         return Task.CompletedTask;
     }
