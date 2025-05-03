@@ -26,8 +26,8 @@ internal class QueueConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer
         _options = options.Value;
     }
 
-    protected override ServiceBusProcessor CreateProcessor()
+    protected override ServiceBusProcessor? CreateProcessor()
     {
-        return ServiceBusClient.CreateProcessor(_namesResolver.ResolveQueueName(_options), ProcessorOptions);
+        return ServiceBusClient?.CreateProcessor(_namesResolver.ResolveQueueName(_options), ProcessorOptions);
     }
 }

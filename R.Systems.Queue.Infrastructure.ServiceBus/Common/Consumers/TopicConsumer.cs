@@ -26,9 +26,9 @@ internal class TopicConsumer<TOptions, TConsumer> : ServiceBusConsumer<TConsumer
         _options = options.Value;
     }
 
-    protected override ServiceBusProcessor CreateProcessor()
+    protected override ServiceBusProcessor? CreateProcessor()
     {
-        return ServiceBusClient.CreateProcessor(
+        return ServiceBusClient?.CreateProcessor(
             _namesResolver.ResolveTopicName(_options),
             _namesResolver.ResolveSubscriptionName(_options),
             ProcessorOptions

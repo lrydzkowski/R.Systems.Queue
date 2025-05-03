@@ -16,7 +16,7 @@ internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
     private readonly TConsumer _consumer;
     private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
     protected readonly ServiceBusProcessorOptions ProcessorOptions;
-    protected readonly ServiceBusClient ServiceBusClient;
+    protected readonly ServiceBusClient? ServiceBusClient;
     private ServiceBusProcessor? _processor;
 
     protected ServiceBusConsumer(
@@ -78,12 +78,17 @@ internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
         }
 
         _processor = CreateProcessor();
+        if (_processor is null)
+        {
+            return;
+        }
+
         _processor.ProcessMessageAsync += _consumer.ProcessMessageAsync;
         _processor.ProcessErrorAsync += _consumer.ProcessErrorAsync;
         await _processor.StartProcessingAsync(cancellationToken);
     }
 
-    protected abstract ServiceBusProcessor CreateProcessor();
+    protected abstract ServiceBusProcessor? CreateProcessor();
 
     private bool CanBeStarted()
     {
@@ -115,6 +120,9 @@ internal abstract class ServiceBusConsumer<TConsumer> : IServiceBusConsumer
             await _processor.DisposeAsync();
         }
 
-        await ServiceBusClient.DisposeAsync();
+        if (ServiceBusClient is not null)
+        {
+            await ServiceBusClient.DisposeAsync();
+        }
     }
 }
