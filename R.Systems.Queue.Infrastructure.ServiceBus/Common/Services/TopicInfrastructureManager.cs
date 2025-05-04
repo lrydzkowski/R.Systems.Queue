@@ -1,6 +1,7 @@
 using Azure;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
@@ -10,16 +11,20 @@ namespace R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
 internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
     where TOptions : class, ITopicOptions
 {
+    private readonly ServiceBusAdministrationClient _adminClient;
     private readonly ILogger<IInfrastructureManager> _logger;
     private readonly INamesResolver _namesResolver;
     private readonly TOptions _options;
 
     public TopicInfrastructureManager(
+        IAzureClientFactory<ServiceBusAdministrationClient> clientFactory,
+        string serviceBusClientName,
         IOptions<TOptions> options,
         INamesResolver namesResolver,
         ILogger<TopicInfrastructureManager<TOptions>> logger
     )
     {
+        _adminClient = clientFactory.CreateClient(serviceBusClientName);
         _options = options.Value;
         _namesResolver = namesResolver;
         _logger = logger;
@@ -54,8 +59,7 @@ internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
 
         try
         {
-            ServiceBusAdministrationClient client = new(topicOptions.ConnectionString);
-            Response<bool>? topicExists = await client.TopicExistsAsync(topicName, cancellationToken);
+            Response<bool>? topicExists = await _adminClient.TopicExistsAsync(topicName, cancellationToken);
             if (topicExists?.Value == true)
             {
                 _logger.LogInformation("Topic already exists: {TopicName}", topicName);
@@ -63,7 +67,7 @@ internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
                 return;
             }
 
-            await client.CreateTopicAsync(topicName, cancellationToken);
+            await _adminClient.CreateTopicAsync(topicName, cancellationToken);
             _logger.LogInformation("Topic created: {TopicName}", topicName);
         }
         catch (ServiceBusException ex) when (ex.Reason == ServiceBusFailureReason.MessagingEntityAlreadyExists)
@@ -94,8 +98,7 @@ internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
 
         try
         {
-            ServiceBusAdministrationClient client = new(topicOptions.ConnectionString);
-            Response<bool>? subscriptionExists = await client.SubscriptionExistsAsync(
+            Response<bool>? subscriptionExists = await _adminClient.SubscriptionExistsAsync(
                 topicName,
                 subscriptionName,
                 cancellationToken
@@ -111,7 +114,7 @@ internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
                 return;
             }
 
-            await client.CreateSubscriptionAsync(topicName, subscriptionName, cancellationToken);
+            await _adminClient.CreateSubscriptionAsync(topicName, subscriptionName, cancellationToken);
             _logger.LogInformation(
                 "Subscription created: {SubscriptionName} for topic: {TopicName}",
                 subscriptionName,

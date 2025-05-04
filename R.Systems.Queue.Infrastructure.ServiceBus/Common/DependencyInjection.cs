@@ -1,4 +1,5 @@
 ﻿using Azure.Messaging.ServiceBus;
+using Azure.Messaging.ServiceBus.Administration;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -83,15 +84,23 @@ public static class DependencyInjection
     }
 
     public static void ConfigureQueueCreator<TOptions>(this IServiceCollection services)
-        where TOptions : class, IQueueOptions
+        where TOptions : class, IQueueOptions, new()
     {
-        services.AddSingleton<IInfrastructureManager, QueueInfrastructureManager<TOptions>>();
+        string name = typeof(TOptions).Name;
+        services.ConfigureServiceBusAdministrationClient<TOptions>(name);
+        services.AddSingleton<IInfrastructureManager>(serviceProvider =>
+            ActivatorUtilities.CreateInstance<QueueInfrastructureManager<TOptions>>(serviceProvider, name)
+        );
     }
 
     public static void ConfigureTopicCreator<TOptions>(this IServiceCollection services)
-        where TOptions : class, ITopicOptions
+        where TOptions : class, ITopicOptions, new()
     {
-        services.AddSingleton<IInfrastructureManager, TopicInfrastructureManager<TOptions>>();
+        string name = typeof(TOptions).Name;
+        services.ConfigureServiceBusAdministrationClient<TOptions>(name);
+        services.AddSingleton<IInfrastructureManager>(serviceProvider =>
+            ActivatorUtilities.CreateInstance<TopicInfrastructureManager<TOptions>>(serviceProvider, name)
+        );
     }
 
     private static void ConfigureServices(this IServiceCollection services)
@@ -111,6 +120,27 @@ public static class DependencyInjection
                             TOptions options = serviceProvider.GetRequiredService<IOptions<TOptions>>().Value;
 
                             return new ServiceBusClient(options.ConnectionString);
+                        }
+                    )
+                    .WithName(name);
+            }
+        );
+    }
+
+    private static void ConfigureServiceBusAdministrationClient<TOptions>(this IServiceCollection services, string name)
+        where TOptions : class, IServiceBusOptions, new()
+    {
+        services.AddAzureClients(azureClientFactoryBuilder =>
+            {
+                azureClientFactoryBuilder
+                    .AddClient<ServiceBusAdministrationClient, ServiceBusAdministrationClientOptions>((
+                            _,
+                            serviceProvider
+                        ) =>
+                        {
+                            TOptions options = serviceProvider.GetRequiredService<IOptions<TOptions>>().Value;
+
+                            return new ServiceBusAdministrationClient(options.ConnectionString);
                         }
                     )
                     .WithName(name);
