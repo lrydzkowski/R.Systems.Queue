@@ -41,6 +41,8 @@ public class WorkerServiceBus : IHostedService, IAsyncDisposable
         {
             await serviceBusConsumer.StopProcessingAsync(cancellationToken);
         }
+
+        await DeleteInfrastructureAsync(cancellationToken);
     }
 
     private async Task CreateInfrastructureAsync(CancellationToken cancellationToken)
@@ -48,6 +50,14 @@ public class WorkerServiceBus : IHostedService, IAsyncDisposable
         foreach (IInfrastructureManager infrastructureManager in _infrastructureManagers)
         {
             await infrastructureManager.CreateInfrastructureAsync(cancellationToken);
+        }
+    }
+
+    private async Task DeleteInfrastructureAsync(CancellationToken cancellationToken)
+    {
+        foreach (IInfrastructureManager infrastructureManager in _infrastructureManagers)
+        {
+            await infrastructureManager.DeleteInfrastructureAsync(cancellationToken);
         }
     }
 }

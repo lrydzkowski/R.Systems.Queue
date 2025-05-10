@@ -7,6 +7,7 @@ using R.Systems.Queue.Infrastructure.ServiceBus.Common.Consumers;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Options;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Senders;
 using R.Systems.Queue.Infrastructure.ServiceBus.Common.Services;
+using TMHE.PartsShop.Infrastructure.Azure.ServiceBus.Common.Extensions;
 
 namespace R.Systems.Queue.Infrastructure.ServiceBus.Common;
 
@@ -20,7 +21,9 @@ public static class DependencyInjection
     public static void ConfigureServiceBusQueueConsumer<TConsumer, TOptions>(
         this IServiceCollection services,
         ServiceBusProcessorOptions? processorOptions = null
-    ) where TConsumer : class, IMessageConsumer where TOptions : class, IQueueOptions, new()
+    )
+        where TConsumer : class, IMessageConsumer
+        where TOptions : class, IQueueOptions, new()
     {
         string name = typeof(TConsumer).Name;
         services.ConfigureServiceBusClient<TOptions>(name);
@@ -37,7 +40,9 @@ public static class DependencyInjection
     public static void ConfigureServiceBusTopicConsumer<TConsumer, TOptions>(
         this IServiceCollection services,
         ServiceBusProcessorOptions? processorOptions = null
-    ) where TConsumer : class, IMessageConsumer where TOptions : class, ITopicOptions, new()
+    )
+        where TConsumer : class, IMessageConsumer
+        where TOptions : class, ITopicOptions, new()
     {
         string name = typeof(TConsumer).Name;
         services.ConfigureServiceBusClient<TOptions>(name);
@@ -83,23 +88,86 @@ public static class DependencyInjection
         services.AddScoped<TSender, TSenderImplementation>();
     }
 
-    public static void ConfigureQueueCreator<TOptions>(this IServiceCollection services)
+    public static void ConfigureQueueCreator<TOptions>(
+        this IServiceCollection services,
+        Func<IServiceProvider, CreateQueueOptions, CreateQueueOptions>? processCreateQueueOptions = null
+    )
         where TOptions : class, IQueueOptions, new()
     {
         string name = typeof(TOptions).Name;
         services.ConfigureServiceBusAdministrationClient<TOptions>(name);
         services.AddSingleton<IInfrastructureManager>(serviceProvider =>
-            ActivatorUtilities.CreateInstance<QueueInfrastructureManager<TOptions>>(serviceProvider, name)
+            {
+                CreateQueueOptions createQueueOptions = serviceProvider.BuildCreateQueueOptions<TOptions>();
+                if (processCreateQueueOptions is not null)
+                {
+                    createQueueOptions = processCreateQueueOptions(serviceProvider, createQueueOptions);
+                }
+
+                return ActivatorUtilities.CreateInstance<QueueInfrastructureManager<TOptions>>(
+                    serviceProvider,
+                    name,
+                    createQueueOptions
+                );
+            }
         );
     }
 
-    public static void ConfigureTopicCreator<TOptions>(this IServiceCollection services)
+    public static void ConfigureTopicCreator<TOptions>(
+        this IServiceCollection services,
+        Func<IServiceProvider, CreateTopicOptions, CreateTopicOptions>? processCreateTopicOptions = null
+    )
         where TOptions : class, ITopicOptions, new()
     {
         string name = typeof(TOptions).Name;
         services.ConfigureServiceBusAdministrationClient<TOptions>(name);
         services.AddSingleton<IInfrastructureManager>(serviceProvider =>
-            ActivatorUtilities.CreateInstance<TopicInfrastructureManager<TOptions>>(serviceProvider, name)
+            {
+                CreateTopicOptions createTopicOptions = serviceProvider.BuildCreateTopicOptions<TOptions>();
+                if (processCreateTopicOptions is not null)
+                {
+                    createTopicOptions = processCreateTopicOptions(
+                        serviceProvider,
+                        createTopicOptions
+                    );
+                }
+
+                return ActivatorUtilities.CreateInstance<TopicInfrastructureManager<TOptions>>(
+                    serviceProvider,
+                    name,
+                    createTopicOptions
+                );
+            }
+        );
+    }
+
+    public static void ConfigureTopicSubscriptionCreator<TOptions>(
+        this IServiceCollection services,
+        Func<IServiceProvider, CreateSubscriptionOptions, CreateSubscriptionOptions>? processCreateSubscriptionOptions =
+            null
+    )
+        where TOptions : class, ITopicOptions, new()
+    {
+        string name = typeof(TOptions).Name;
+        services.ConfigureServiceBusAdministrationClient<TOptions>(name);
+        services.AddSingleton<IInfrastructureManager>(serviceProvider =>
+            {
+                CreateSubscriptionOptions createSubscriptionOptions =
+                    serviceProvider.BuildCreateSubscriptionOptions<TOptions>();
+                if (processCreateSubscriptionOptions is not null)
+                {
+                    createSubscriptionOptions = processCreateSubscriptionOptions(
+                        serviceProvider,
+                        createSubscriptionOptions
+                    );
+                }
+
+                return ActivatorUtilities.CreateInstance<TopicSubscriptionInfrastructureManager<TOptions>>(
+                    serviceProvider,
+                    name,
+                    createSubscriptionOptions
+                );
+            }
         );
     }
 
@@ -115,7 +183,10 @@ public static class DependencyInjection
     {
         services.AddAzureClients(azureClientFactoryBuilder =>
             {
-                azureClientFactoryBuilder.AddClient<ServiceBusClient, ServiceBusClientOptions>((_, serviceProvider) =>
+                azureClientFactoryBuilder.AddClient<ServiceBusClient, ServiceBusClientOptions>((
+                            _,
+                            serviceProvider
+                        ) =>
                         {
                             TOptions options = serviceProvider.GetRequiredService<IOptions<TOptions>>().Value;
 

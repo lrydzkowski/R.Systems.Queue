@@ -52,8 +52,19 @@ public static class DependencyInjection
     private static void ConfigureInfrastructureCreators(this IServiceCollection services)
     {
         services.ConfigureQueueCreator<CompanyQueueOptions>();
+
         services.ConfigureTopicCreator<CompanyTopicOptions>();
+        services.ConfigureTopicSubscriptionCreator<CompanyTopicOptions>();
+
         services.ConfigureQueueCreator<Company2QueueOptions>();
+
         services.ConfigureTopicCreator<Company2TopicOptions>();
+        services.ConfigureTopicSubscriptionCreator<Company2TopicOptions>((serviceProvider, createQueueOptions) =>
+            {
+                createQueueOptions.AutoDeleteOnIdle = TimeSpan.FromMinutes(5);
+
+                return createQueueOptions;
+            }
+        );
     }
 }

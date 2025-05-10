@@ -6,5 +6,9 @@ public interface IQueueOptions : IServiceBusOptions
 
     bool CreateQueueOnStartup { get; init; }
 
+    bool DeleteQueueOnShutdown { get; init; }
+
     bool UseMachineNameAsQueueSuffix { get; init; }
+
+    TimeSpan DuplicateDetectionHistoryTimeWindow { get; init; }
 }

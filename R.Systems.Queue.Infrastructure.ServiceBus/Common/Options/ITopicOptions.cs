@@ -8,9 +8,15 @@ public interface ITopicOptions : IServiceBusOptions
 
     bool CreateTopicOnStartup { get; init; }
 
+    bool DeleteTopicOnShutdown { get; init; }
+
     bool UseMachineNameAsTopicSuffix { get; init; }
 
     bool CreateSubscriptionOnStartup { get; init; }
 
+    bool DeleteSubscriptionOnShutdown { get; init; }
+
     bool UseMachineNameAsSubscriptionSuffix { get; init; }
+
+    TimeSpan DuplicateDetectionHistoryTimeWindow { get; init; }
 }
