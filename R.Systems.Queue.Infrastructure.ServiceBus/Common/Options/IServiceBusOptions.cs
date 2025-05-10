@@ -2,5 +2,7 @@
 
 public interface IServiceBusOptions
 {
+    bool IsEnabled { get; init; }
+
     string ConnectionString { get; set; }
 }
