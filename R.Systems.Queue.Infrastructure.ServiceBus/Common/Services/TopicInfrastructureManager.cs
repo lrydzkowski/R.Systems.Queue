@@ -103,7 +103,7 @@ internal class TopicInfrastructureManager<TOptions> : IInfrastructureManager
 
         try
         {
-            await _adminClient!.DeleteTopicAsync(_createTopicOptions.Name, cancellationToken);
+            await _adminClient!.DeleteTopicAsync(topicName, cancellationToken);
             _logger.LogInformation("Topic deleted: {TopicName}", topicName);
         }
         catch (Exception ex)
